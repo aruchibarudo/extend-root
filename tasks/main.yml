@@ -1,0 +1,41 @@
+- name: Install parted
+  package:
+    name: parted
+    state: present
+  tags:
+    - extend-root
+- name: Get partition information
+  parted:
+    device: "{{ dev }}"
+  register: partinfo
+  tags:
+    - extend-root
+- debug: var=partinfo.partitions[-1].end
+  tags:
+    - extend-root
+- name: Resize partition
+  command: "parted -s -m -a optimal {{ dev }} -- unit KiB resizepart {{ partinfo.partitions[-1].num }} 100%"
+  tags:
+    - extend-root
+- name: Probe kernel about partition table changes
+  command: partprobe
+  tags:
+    - extend-root
+- name: Extend PV to the whole partition
+  command: "pvresize {{ dev }}{{ partinfo.partitions[-1].num }} --quiet --yes"
+  tags:
+    - extend-root
+- name: Extend LVM to the whole volume group
+  lvol:
+    vg: "{{ vg_name[ansible_distribution] }}"
+    lv: "{{ lv_name[ansible_distribution] }}"
+    size: +100%FREE
+  tags:
+    - extend-root
+- name: Extend the filesystem
+  filesystem:
+    fstype: "{{ fs_type[ansible_distribution] }}"
+    dev: "/dev/mapper/{{ dm_vg_name[ansible_distribution] }}-{{ lv_name[ansible_distribution] }}"
+    resizefs: yes
+  tags:
+    - extend-root

@@ -1,0 +1,22 @@
+---
+dev: /dev/sda
+vg_name:
+  CentOS: centos_centos
+  "Astra Linux (Orel)": t-astra-vg
+  Ubuntu: "t-ubuntu{{ ansible_distribution_major_version }}-vg"
+
+dm_vg_name:
+  CentOS: centos_centos
+  "Astra Linux (Orel)": t--astra--vg
+  Ubuntu: "t--ubuntu{{ ansible_distribution_major_version }}--vg" 
+
+lv_name:
+  CentOS: root
+  "Astra Linux (Orel)": root
+  Ubuntu: root
+
+fs_type:
+  CentOS: xfs
+  "Astra Linux (Orel)": ext4
+  Ubuntu: ext4 
+
